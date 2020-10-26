@@ -14,7 +14,7 @@ func TestMessage(t *testing.T) {
 		{
 			&notification.Message{
 				Domain: "example.slack.com",
-				Title:  "New notification from Slackbot",
+				Title:  "New message from Slackbot",
 				Body:   "テスト",
 			},
 			`example.slack.com [Slackbot] テスト`,
@@ -22,7 +22,7 @@ func TestMessage(t *testing.T) {
 		{
 			&notification.Message{
 				Domain: "example.slack.com",
-				Title:  "New notification in #general",
+				Title:  "New message in #general",
 				Body:   "ato: あいうえお",
 			},
 			`example.slack.com [#general] ato: あいうえお`,
