@@ -22,3 +22,15 @@ func String(m *dbus.Message) string {
 		return msg.String()
 	}
 }
+
+func Message(m *dbus.Message) *notification.Message {
+	msg := notification.From(m)
+	switch {
+	case strings.HasSuffix(msg.Domain, ".slack.com"):
+		return slack_com.Message(msg)
+	case msg.Domain == "calendar.google.com":
+		return calendar_google_com.Message(msg)
+	default:
+		return msg
+	}
+}

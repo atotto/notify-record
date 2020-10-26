@@ -3,14 +3,16 @@ package notification
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/godbus/dbus"
 )
 
 type Message struct {
-	Domain string
-	Title  string
-	Body   string
+	TimeStamp time.Time
+	Domain    string
+	Title     string
+	Body      string
 }
 
 // https://developer.gnome.org/notification-spec/
@@ -39,18 +41,20 @@ func From(m *dbus.Message) *Message {
 
 	domain, body := parseBody(msg.Body)
 	return &Message{
-		Domain: domain,
-		Title:  msg.Summary,
-		Body:   body,
+		TimeStamp: time.Now(),
+		Domain:    domain,
+		Title:     msg.Summary,
+		Body:      body,
 	}
 }
 
 func FromText(title, body string) *Message {
 	domain, body := parseBody(body)
 	return &Message{
-		Domain: domain,
-		Title:  title,
-		Body:   body,
+		TimeStamp: time.Now(),
+		Domain:    domain,
+		Title:     title,
+		Body:      body,
 	}
 }
 

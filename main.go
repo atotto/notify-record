@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/atotto/notify-record/message"
+	"github.com/fatih/color"
 
 	"github.com/godbus/dbus"
 )
@@ -23,7 +24,17 @@ func main() {
 	mch := make(chan *dbus.Message, 10)
 	conn.Eavesdrop(mch)
 
+	domainColor := color.New(color.FgBlue).SprintFunc()
+	bodyColor := color.New(color.FgBlack).SprintFunc()
+	titleColor := color.New(color.FgGreen).SprintFunc()
+	tsColor := color.New(color.FgHiRed).SprintFunc()
 	for v := range mch {
-		log.Print(message.String(v))
+		m := message.Message(v)
+		fmt.Printf("%s %s %s\n  %s\n",
+			tsColor(m.TimeStamp.Format("15:04:05")),
+			domainColor(m.Domain),
+			titleColor(m.Title),
+			bodyColor(m.Body),
+		)
 	}
 }
