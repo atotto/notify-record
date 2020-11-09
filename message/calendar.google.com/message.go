@@ -14,14 +14,15 @@ func Message(m *notification.Message) *notification.Message {
 	}
 
 	schedule := strings.Replace(ss[0], " – ", "-", 1)
+	m.Header = schedule
 
+	m.Body, m.Title = m.Title, ""
 	if len(ss) == 1 {
-		m.Body = fmt.Sprintf("[%s]", schedule)
 		return m
 	}
 
 	location := ss[1]
-	m.Body = fmt.Sprintf("[%s] at %s", schedule, location)
+	m.Body = fmt.Sprintf("%s at %s", m.Body, location)
 	return m
 }
 

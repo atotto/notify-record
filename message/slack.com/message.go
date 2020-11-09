@@ -11,6 +11,11 @@ func Message(m *notification.Message) *notification.Message {
 	index := strings.LastIndex(m.Title, " ")
 	title := m.Title[index+1:]
 	m.Title = title
+	ss := strings.SplitN(m.Body, ": ", 2)
+	if len(ss) == 2 {
+		m.Header = ss[0]
+		m.Body = ss[1]
+	}
 	return m
 }
 

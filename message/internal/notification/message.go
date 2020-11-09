@@ -2,6 +2,7 @@ package notification
 
 import (
 	"fmt"
+	"html"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ type Message struct {
 	TimeStamp time.Time
 	Domain    string
 	Title     string
+	Header    string
 	Body      string
 }
 
@@ -59,6 +61,8 @@ func FromText(title, body string) *Message {
 }
 
 func parseBody(body string) (domain string, msg string) {
+	body = html.UnescapeString(body)
+	body = html.UnescapeString(body)
 	ss := strings.SplitN(body, "\n", 3)
 	if len(ss) == 3 {
 		return ss[0], ss[2]
