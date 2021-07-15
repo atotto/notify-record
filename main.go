@@ -34,8 +34,14 @@ func main() {
 	titleColor := color.New(color.FgGreen).SprintFunc()
 	tsColor := color.New(color.FgHiRed).SprintFunc()
 
+	var preBody string
 	for v := range mch {
 		m := message.Message(v)
+		if preBody == m.Body {
+			// suppress dup message
+			continue
+		}
+		preBody = m.Body
 		body := bodyColor(strings.ReplaceAll(m.Body, "\n", "\n  "))
 		if m.Header != "" {
 			body = fmt.Sprintf("%s: %s", headerColor(m.Header), body)
