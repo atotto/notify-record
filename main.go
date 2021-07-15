@@ -45,7 +45,7 @@ func main() {
 		messageString = m.String()
 
 		// ignore keywords
-		if hasKeywords(messageString, ignoreKeywords) {
+		if !hasKeywords(messageString, keywords) && hasKeywords(messageString, ignoreKeywords) {
 			continue
 		}
 
