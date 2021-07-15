@@ -35,20 +35,18 @@ func main() {
 	titleColor := color.New(color.FgGreen).SprintFunc()
 	tsColor := color.New(color.FgHiRed).SprintFunc()
 
-	var preBody string
+	var messageString string
 	for v := range mch {
 		m := message.Message(v)
-		if preBody == m.Body {
+		if messageString == m.String() {
 			// suppress dup message
 			continue
 		}
-		preBody = m.Body
+		messageString = m.String()
 
 		// ignore keywords
-		for _, keyword := range ignoreKeywords {
-			if strings.Contains(m.Body, keyword) {
-				continue
-			}
+		if hasKeywords(messageString, ignoreKeywords) {
+			continue
 		}
 
 		body := bodyColor(strings.ReplaceAll(m.Body, "\n", "\n  "))
@@ -67,4 +65,13 @@ func main() {
 			body,
 		)
 	}
+}
+
+func hasKeywords(s string, keys []string) bool {
+	for _, key := range keys {
+		if strings.Contains(s, key) {
+			return true
+		}
+	}
+	return false
 }
