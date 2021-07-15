@@ -26,6 +26,7 @@ func main() {
 	conn.Eavesdrop(mch)
 
 	keywords := strings.Split(os.Getenv("NOTIFY_RECORD_KEYWORDS"), ",")
+	ignoreKeywords := strings.Split(os.Getenv("NOTIFY_RECORD_IGNORE_KEYWORDS"), ",")
 
 	domainColor := color.New(color.FgBlue).SprintFunc()
 	headerColor := color.New(color.FgBlack, color.Bold).SprintFunc()
@@ -42,6 +43,14 @@ func main() {
 			continue
 		}
 		preBody = m.Body
+
+		// ignore keywords
+		for _, keyword := range ignoreKeywords {
+			if strings.Contains(m.Body, keyword) {
+				continue
+			}
+		}
+
 		body := bodyColor(strings.ReplaceAll(m.Body, "\n", "\n  "))
 		if m.Header != "" {
 			body = fmt.Sprintf("%s: %s", headerColor(m.Header), body)
