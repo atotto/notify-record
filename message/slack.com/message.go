@@ -14,7 +14,7 @@ func Message(m *notification.Message) *notification.Message {
 	ss := strings.SplitN(m.Body, ": ", 2)
 	if len(ss) == 2 {
 		m.Header = ss[0]
-		m.Body = ss[1]
+		m.Body = strings.ReplaceAll(ss[1], "slack.com/archives/", "slack.com/messages/")
 	}
 	return m
 }

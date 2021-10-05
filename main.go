@@ -37,6 +37,9 @@ func main() {
 
 	var messageString string
 	for v := range mch {
+		if len(v.Body) == 0 {
+			continue
+		}
 		m := message.Message(v)
 		if messageString == m.String() {
 			// suppress dup message
