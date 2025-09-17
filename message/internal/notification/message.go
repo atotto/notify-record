@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"encoding/json"
 	"fmt"
 	"html"
 	"strings"
@@ -10,11 +11,11 @@ import (
 )
 
 type Message struct {
-	TimeStamp time.Time
-	Domain    string
-	Title     string
-	Header    string
-	Body      string
+	TimeStamp time.Time `json:"ts"`
+	Domain    string    `json:"domain"`
+	Title     string    `json:"title"`
+	Header    string    `json:"header"`
+	Body      string    `json:"body"`
 }
 
 // https://developer.gnome.org/notification-spec/
@@ -75,4 +76,21 @@ func (m *Message) String() string {
 		return fmt.Sprintf("%s: %s", m.Title, m.Body)
 	}
 	return fmt.Sprintf("%s %s: %s", m.Domain, m.Title, m.Body)
+}
+
+func (m *Message) MarshalJSON() ([]byte, error) {
+	type Alias Message
+	return json.Marshal(&struct {
+		TimeStamp string `json:"ts"`
+		Domain    string `json:"domain"`
+		Title     string `json:"title"`
+		Header    string `json:"header"`
+		Body      string `json:"body"`
+	}{
+		TimeStamp: m.TimeStamp.Format(time.RFC3339),
+		Domain:    m.Domain,
+		Title:     m.Title,
+		Header:    m.Header,
+		Body:      strings.ReplaceAll(m.Body, "\n", " "),
+	})
 }

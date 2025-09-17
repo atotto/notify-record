@@ -6,13 +6,29 @@ import (
 	"os"
 	"strings"
 
+	"github.com/atotto/notify-record/config"
 	"github.com/atotto/notify-record/message"
 	"github.com/fatih/color"
-
 	"github.com/godbus/dbus"
 )
 
+type HookExecution struct {
+	Hook    config.Hook
+	Message interface{}
+}
+
 func main() {
+	// Load configuration file
+	configPath := os.Getenv("NOTIFY_RECORD_CONFIG")
+	if configPath == "" {
+		configPath = "config.yml"
+	}
+
+	config, err := config.LoadConfig(configPath)
+	if err != nil {
+		log.Printf("Config loading error: %v", err)
+	}
+
 	conn, err := dbus.SessionBus()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to connect to session bus:", err)
@@ -35,6 +51,16 @@ func main() {
 	titleColor := color.New(color.FgGreen).SprintFunc()
 	tsColor := color.New(color.FgHiRed).SprintFunc()
 
+	hookChan := make(chan HookExecution, 16)
+
+	go func() {
+		for hookExec := range hookChan {
+			if err := hookExec.Hook.Exec(hookExec.Message); err != nil {
+				log.Printf("Hook script execution error: %v", err)
+			}
+		}
+	}()
+
 	var messageString string
 	for v := range mch {
 		if len(v.Body) == 0 {
@@ -49,6 +75,10 @@ func main() {
 
 		// ignore keywords
 		if !hasKeywords(messageString, keywords) && hasKeywords(messageString, ignoreKeywords) {
+			continue
+		}
+
+		if !config.PassesGlobalFilters(m.Domain, m.Title, m.Body) {
 			continue
 		}
 
@@ -67,7 +97,13 @@ func main() {
 			titleColor(m.Title),
 			body,
 		)
+
+		hooks := config.FindHooksForMessage(m.Domain, m.Title, m.Body)
+		for _, hook := range hooks {
+			hookChan <- HookExecution{Hook: hook, Message: m}
+		}
 	}
+	close(hookChan)
 }
 
 func hasKeywords(s string, keys []string) bool {

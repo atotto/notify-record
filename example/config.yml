@@ -1,0 +1,33 @@
+filter:
+  - domain: "app.slack.com"
+    body:
+      excludes:
+        - "スレ"
+      length:
+        min: 50
+  - domain: "app.slack.com"
+    title:
+      excludes:
+        - "bot"
+        - "Bot"
+
+hooks:
+  # 特定のDomainsに対してhookを実行する設定の例
+  # 例えば、app.slack.comのメッセージに対してhookを実行したい場合
+  - domain: "app.slack.com"
+    script: |
+      # 標準入力からメッセージ内容を読み取り
+      message=$(cat)
+
+      # ログファイルに記録
+      echo "$message" >> /tmp/slack_notifications_all.log
+  - domain: "app.slack.com"
+    title: "alert"
+    body:
+      contains:
+        - "URGENT"
+      excludes:
+        - "RESOLVED"
+    script: |
+      message=$(cat)
+      echo "$message" >> /tmp/slack_notifications_alert.log
