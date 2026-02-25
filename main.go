@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/atotto/notify-record/config"
@@ -17,12 +18,22 @@ type HookExecution struct {
 	Message interface{}
 }
 
-func main() {
-	// Load configuration file
-	configPath := os.Getenv("NOTIFY_RECORD_CONFIG")
-	if configPath == "" {
-		configPath = "config.yml"
+func getConfigPath() string {
+	// 1. Check XDG_CONFIG_HOME
+	if xdgConfigHome := os.Getenv("XDG_CONFIG_HOME"); xdgConfigHome != "" {
+		return filepath.Join(xdgConfigHome, "notify-record", "config.yml")
 	}
+
+	// 2. Use XDG default: ~/.config/notify-record/config.yml
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatalf("Failed to get user home directory: %v", err)
+	}
+	return filepath.Join(homeDir, ".config", "notify-record", "config.yml")
+}
+
+func main() {
+	configPath := getConfigPath()
 
 	config, err := config.LoadConfig(configPath)
 	if err != nil {
